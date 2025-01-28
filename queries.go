@@ -17,30 +17,30 @@ type Query struct {
 }
 
 var Queries = []*Query{
-	&Query{
+	{
 		Name:      "mysql_variables",
 		Statement: "SHOW GLOBAL VARIABLES",
 		Key:       "Variable_name",
 		Value:     "Value",
 	},
-	&Query{
+	{
 		Name:      "mysql_status",
 		Statement: "SHOW GLOBAL STATUS",
 		Key:       "Variable_name",
 		Value:     "Value",
 	},
-	&Query{
+	{
 		Name:      "mysql_replica",
 		Statement: "SHOW REPLICA STATUS",
 		UnPivot:   true,
 	},
-	&Query{
+	{
 		Statement: "SELECT name, count FROM information_schema.innodb_metrics WHERE status='enabled'",
 		Name:      "mysql_innodb",
 		Key:       "name",
 		Value:     "count",
 	},
-	&Query{
+	{
 		Name: "mysql_latency",
 		Statement: fmt.Sprintf(`
         SELECT
@@ -54,7 +54,7 @@ var Queries = []*Query{
         `, int(getInterval().Seconds())),
 		UnPivot: true,
 	},
-	&Query{
+	{
 		Name: "mysql_errors",
 		Statement: fmt.Sprintf(`
         SELECT ERROR_NUMBER, SQL_STATE, ERROR_NAME, SUM_ERROR_RAISED
@@ -64,7 +64,7 @@ var Queries = []*Query{
         `, int(getInterval().Seconds())),
 		UnPivot: true,
 	},
-	&Query{
+	{
 		Interval: 3600,
 		Name:     "mysql_overflow",
 		Statement: `
@@ -86,7 +86,7 @@ var Queries = []*Query{
         `,
 		UnPivot: true,
 	},
-	&Query{
+	{
 		Interval: 3600,
 		Name:     "mysql_tables",
 		Statement: `
@@ -100,7 +100,7 @@ var Queries = []*Query{
         `,
 		UnPivot: true,
 	},
-	&Query{
+	{
 		Name: "mysql_statements",
 		Statement: fmt.Sprintf(`
         SELECT
@@ -108,7 +108,11 @@ var Queries = []*Query{
             DIGEST,
             DIGEST_TEXT,
             COUNT_STAR,
-            SUM_TIMER_WAIT,
+            SUM_TIMER_WAIT/1000000000000 SUM_TIMER_WAIT_SEC,
+            MIN_TIMER_WAIT/1000000000000 MIN_TIMER_WAIT_SEC,
+            AVG_TIMER_WAIT/1000000000000 AVG_TIMER_WAIT_SEC,
+            MAX_TIMER_WAIT/1000000000000 MAX_TIMER_WAIT_SEC,
+            SUM_LOCK_TIME/1000000000000 SUM_LOCK_TIME_SEC,
             SUM_ERRORS,
             SUM_WARNINGS,
             SUM_ROWS_AFFECTED,
