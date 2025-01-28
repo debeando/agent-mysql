@@ -105,7 +105,7 @@ func getDebug() bool {
 }
 
 func getInterval() time.Duration {
-	return time.Duration(env.GetInt("INTERVAL", 3)) * time.Second
+	return time.Duration(env.GetInt("INTERVAL", 10)) * time.Second
 }
 
 func getServer() string {
