@@ -29,7 +29,7 @@ docker run \
 Create a `monitor` user to allow access to agent.
 
 ```sql
-CREATE USER monitor@'%' IDENTIFIED by '<monitor-pass>';
+CREATE USER monitor@'%' IDENTIFIED BY '<monitor-pass>';
 ALTER USER monitor@'%' WITH MAX_USER_CONNECTIONS 5;
 GRANT REPLICATION CLIENT ON *.* TO monitor@'%';
 GRANT PROCESS ON *.* TO monitor@'%';

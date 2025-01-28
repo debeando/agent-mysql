@@ -6,6 +6,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/debeando/agent-mysql/metrics"
 	"github.com/debeando/go-common/env"
 	"github.com/debeando/go-common/log"
 	"github.com/influxdata/influxdb-client-go/v2"
@@ -49,14 +50,14 @@ func (i *InfluxDB) New() {
 	)
 }
 
-func (i *InfluxDB) Write(metrics Metrics) {
+func (i *InfluxDB) Write(items metrics.Metrics) {
 	writeAPI := i.Connection.WriteAPI("debeando", i.Bucket)
 
-	for _, metric := range metrics {
+	for _, item := range items {
 		point := influxdb2.NewPoint(
-			metric.Measurement,
-			metric.TagsToMap(),
-			metric.FieldsToMap(),
+			item.Measurement,
+			item.TagsToMap(),
+			item.FieldsToMap(),
 			time.Now(),
 		)
 

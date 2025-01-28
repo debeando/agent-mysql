@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/debeando/agent-mysql/metrics"
 	"github.com/debeando/go-common/env"
 	"github.com/debeando/go-common/log"
 	"github.com/debeando/go-common/mysql"
@@ -39,12 +40,12 @@ func main() {
 	defer MySQL.Connection.Close()
 
 	for {
-		metrics := Metrics{}
+		items := metrics.Metrics{}
 
 		MySQL.Connection.Connect()
 
 		for _, query := range Queries {
-			metric := Metric{}
+			metric := metrics.Metric{}
 
 			if !query.IsTime(query.Interval) {
 				continue
@@ -59,7 +60,7 @@ func main() {
 
 			MySQL.Connection.FetchAll(query.Beautifier(), func(row map[string]string) {
 				metric.Measurement = query.Name
-				metric.AddTag(Tag{
+				metric.AddTag(metrics.Tag{
 					Name:  "server",
 					Value: getServer(),
 				})
@@ -67,33 +68,33 @@ func main() {
 				if query.UnPivot {
 					for column, value := range row {
 						if valueParsed, ok := mysql.ParseNumberValue(value); ok {
-							metric.AddField(Field{
+							metric.AddField(metrics.Field{
 								Name:  column,
 								Value: valueParsed,
 							})
 						} else {
-							metric.AddTag(Tag{
+							metric.AddTag(metrics.Tag{
 								Name:  column,
 								Value: value,
 							})
 						}
 					}
 				} else if valueParsed, ok := mysql.ParseNumberValue(row[query.Value]); ok {
-					metric.AddField(Field{
+					metric.AddField(metrics.Field{
 						Name:  row[query.Key],
 						Value: valueParsed,
 					})
 				}
 			})
 
-			metrics.Add(metric)
+			items.Add(metric)
 		}
 
-		if metrics.Count() > 0 {
-			influxDB.Write(metrics)
+		if items.Count() > 0 {
+			influxDB.Write(items)
 		}
 
-		metrics.Reset()
+		items.Reset()
 		log.Debug("Wait until next collect metrics.")
 		time.Sleep(getInterval())
 	}
@@ -104,7 +105,7 @@ func getDebug() bool {
 }
 
 func getInterval() time.Duration {
-	return time.Duration(env.GetInt("INTERVAL", 3)) * time.Second
+	return time.Duration(env.GetInt("INTERVAL", 10)) * time.Second
 }
 
 func getServer() string {

@@ -1,4 +1,4 @@
-package main
+package metrics
 
 // Tag for metric.
 type Tag struct {
